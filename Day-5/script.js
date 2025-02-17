@@ -1,85 +1,114 @@
-function customMap(arr, callback) {
-    let result = [];
-    for (let i = 0; i < arr.length; i++) {
-        result.push(callback(arr[i], i, arr)); // Pass element, index, and array
+// Custom implementation of map, filter, and reduce using prototype
+
+// Custom map function
+Array.prototype.customMap = function (callback) {
+  let result = [];
+  for (let i = 0; i < this.length; i++) {
+    result.push(callback(this[i], i, this));
+  }
+  return result;
+};
+
+// Custom filter function
+Array.prototype.customFilter = function (callback) {
+  let result = [];
+  for (let i = 0; i < this.length; i++) {
+    if (callback(this[i], i, this)) {
+      result.push(this[i]);
     }
-    return result;
-}
+  }
+  return result;
+};
 
-// Example of map function
-const arr = [100,300,700,900,1000];
-let newarr=arr.map((curElem,index)=>{
-    return curElem*2;
-});
-console.log(newarr);
+// Custom reduce function
+Array.prototype.customReduce = function (callback, initialValue) {
+  let accumulator = initialValue !== undefined ? initialValue : this[0];
+  let startIndex = initialValue !== undefined ? 0 : 1;
+  
+  for (let i = startIndex; i < this.length; i++) {
+    accumulator = callback(accumulator, this[i], i, this);
+  }
+  
+  return accumulator;
+};
+
+// Testing the custom functions
+const numbers = [1, 2, 3, 4, 5];
+
+// Using customMap
+const doubled = numbers.customMap(num => num * 2);
+console.log("Custom Map:", doubled); // [2, 4, 6, 8, 10]
+
+// Using customFilter
+const evenNumbers = numbers.customFilter(num => num % 2 === 0);
+console.log("Custom Filter:", evenNumbers); // [2, 4]
+
+// Using customReduce
+const sum = numbers.customReduce((acc, num) => acc + num, 0);
+console.log("Custom Reduce:", sum); // 15
 
 
-
-function customFilter(arr, callback) {
+//custom map function
+Array.prototype.myMapWithCondition = function (callback, condition) {
     let result = [];
-    for (let i = 0; i < arr.length; i++) {
-        if (callback(arr[i], i, arr)) { // Pass element, index, and array
-            result.push(arr[i]);
+    for (let i = 0; i < this.length; i++) {
+        if (condition(this[i], i, this)) {
+            result.push(callback(this[i], i, this));
+        } else {
+            result.push(this[i]); // Keep original value if condition is false
         }
     }
     return result;
-}
-//Example of filter function
-const evenArr=newarr.filter((curElem,index)=>{
-    return curElem%2===0;
-});
-console.log(evenArr);
+};
 
-function customReduce(arr, callback, initialValue) {
-    let accumulator = initialValue !== undefined ? initialValue : arr[0];
+// Example: Double only even numbers
+const numbers = [1, 2, 3, 4, 5];
+
+const doubledEvens = numbers.myMapWithCondition(
+    (num) => num * 2, 
+    (num) => num % 2 === 0
+);
+
+console.log(doubledEvens); 
+
+
+//custom filter function
+
+
+Array.prototype.myReject = function (callback) {
+    let result = [];
+    for (let i = 0; i < this.length; i++) {
+        if (!callback(this[i], i, this)) {
+            result.push(this[i]); // Keep elements that do NOT match the condition
+        }
+    }
+    return result;
+};
+
+// Example: Remove negative numbers
+const values = [-3, 2, -7, 8, -1, 5];
+
+const positiveNumbers = values.myReject((num) => num < 0);
+
+console.log(positiveNumbers); 
+
+
+
+//custom reduce function
+Array.prototype.myReduceWithLogging = function (callback, initialValue) {
+    let accumulator = initialValue !== undefined ? initialValue : this[0];
     let startIndex = initialValue !== undefined ? 0 : 1;
 
-    for (let i = startIndex; i < arr.length; i++) {
-        accumulator = callback(accumulator, arr[i], i, arr);
+    for (let i = startIndex; i < this.length; i++) {
+        console.log(`Step ${i}: Accumulator = ${accumulator}, Current Value = ${this[i]}`);
+        accumulator = callback(accumulator, this[i], i, this);
     }
-
     return accumulator;
-}
-//Example of reduce function
+};
 
-const sum=evenArr.reduce((accumulator,curElem)=>{
-    return accumulator+curElem;
-},0);
+// Example: Calculate product of all numbers
+const nums = [2, 3, 4];
 
-console.log(sum);
+const product = nums.myReduceWithLogging((acc, num) => acc * num, 1);
 
-                 //Another Example Of {map(),filter(),Reduce()}
-// Sample shopping cart dataset
-const cart = [
-    { id: 1, name: "Laptop", price: 800, quantity: 1 },
-    { id: 2, name: "Phone", price: 500, quantity: 2 },
-    { id: 3, name: "Headphones", price: 50, quantity: 3 },
-    { id: 4, name: "Mouse", price: 25, quantity: 2 },
-    { id: 5, name: "USB Cable", price: 10, quantity: 5 }
-];
-
-//  Calculate total price per item using map()
-
-
-const cartWithTotalPrice = cart.map(({ name, price, quantity }) => ({
-    name,
-    totalPrice: price * quantity
-}));
-
-console.log("Cart with Total Prices:", cartWithTotalPrice);
-
-// Filter out inexpensive items (total price < 20)
-
-
-const expensiveItems = cartWithTotalPrice.filter(({ totalPrice }) => totalPrice >= 20);
-
-console.log("Expensive Items:", expensiveItems);
-
-//  Calculate the grand total using reduce()
-
-
-const grandTotal = expensiveItems.reduce((acc, { totalPrice }) => acc + totalPrice, 0);
-
-console.log("Grand Total:", grandTotal);
-
-
+console.log("Final Product:", product);
